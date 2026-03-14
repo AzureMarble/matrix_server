@@ -1,0 +1,6 @@
+# Your domain
+example.org, example.org:8448 {
+	# Email to register a tls certificate
+	tls youremail@example.org
+	reverse_proxy synapse:8008
+}

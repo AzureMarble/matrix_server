@@ -1,0 +1,73 @@
+services:
+  pgdb:
+    image: postgres:latest
+    ports: 
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: postgres_database
+#    networks:
+#      - postgres-db-network
+    volumes:
+      - ./db/conf:/etc/postgresql:ro
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - pgdata:/var/lib/postgresql
+    user: "70:70" # Postgres user
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
+    restart: unless-stopped
+    ports:
+      - "8008:8008"
+      - "8448:8448"
+    environment:
+      - UID=0
+      - GID=0
+    volumes:
+      - synapse_data:/data
+      - ./synapse/homeserver.yaml:/data/homeserver.yaml:ro
+#    networks:
+#      - postgres-db-network
+#      - matrix-network
+    depends_on:
+      - pgdb
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8448:8448"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./caddy:/etc/caddy
+    depends_on:
+      - synapse
+    command:
+      - /bin/sh
+      - -c
+      - exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+#    networks:
+#      - matrix-network
+
+volumes:
+  synapse_data:
+  caddy_data:
+  caddy_config:
+  pgdata:
+
+#networks:
+#  postgres-db-network:
+#    driver: bridge
+#  matrix-network:
+#    driver: bridge

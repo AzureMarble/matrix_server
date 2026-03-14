@@ -1,0 +1,55 @@
+# General
+server_name: example.org # Your domain
+enable_registration: true
+enable_registration_without_verification: true
+registration_shared_secret: secret # Secret needed to register
+database:
+  name: psycopg2
+  args:
+    user: user # Databse User
+    password: password # DB Password
+    database: database # DB to be used
+    host: pgdb
+    port: 5432
+    cp_min: 4
+    cp_max: 9
+max_upload_size: 12M
+push:
+  include_content: true
+  group_unread_count_by_room: false
+encryption_enabled_by_default: all
+enable_group_creation: true
+report_stats: false
+trusted_key_servers:
+  - server_name: "matrix.org"
+suppress_key_server_warning: true
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ['0.0.0.0']
+    resources:
+      - names: [client, federation]
+        compress: true
+allow_public_rooms_over_federation: true
+enable_room_list_search: true
+
+# User specific
+max_avatar_size: 15M
+allowed_avatar_mimetypes: ["image/png","image/apng","image/jpeg","image/webp","image/gif","image/avif"]
+rc_registration:
+  per_second: 0.01
+  burst_count: 2
+rc_login:
+  address:
+    per_second: 0.1
+    burst_count: 3
+rc_admin_redaction:
+  per_second: 1
+  burst_count: 50
+rc_federation:
+  window_size: 750
+  sleep_limit: 5
+  sleep_delay: 4000
+  reject_limit: 40
