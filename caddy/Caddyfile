@@ -1,6 +1,13 @@
-# Your domain
-example.org, example.org:8448 {
-	# Email to register a tls certificate
+example.org {
 	tls youremail@example.org
 	reverse_proxy synapse:8008
+	# Server-to-Server (Federation)
+ 	header /.well-known/matrix/server Content-Type application/json
+	header /.well-known/matrix/server Access-Control-Allow-Origin *
+	respond /.well-known/matrix/server `{"m.server": "example.org:443"}` 200
+
+	# Client-to-Server
+	header /.well-known/matrix/client Content-Type application/json
+	header /.well-known/matrix/client Access-Control-Allow-Origin *
+	respond /.well-known/matrix/client `{"m.homeserver": {"base_url": "https://example.org"}}` 200
 }
