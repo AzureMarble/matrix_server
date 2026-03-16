@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: postgres_user
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_DB: postgres_database
-#    networks:
-#      - postgres-db-network
     volumes:
       - ./db/conf:/etc/postgresql:ro
       - ./db/init:/docker-entrypoint-initdb.d:ro
@@ -33,9 +31,6 @@ services:
     volumes:
       - synapse_data:/data
       - ./synapse/homeserver.yaml:/data/homeserver.yaml:ro
-#    networks:
-#      - postgres-db-network
-#      - matrix-network
     depends_on:
       - pgdb
 
@@ -50,24 +45,16 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-      - ./caddy:/etc/caddy
+      - ./caddy:/etc/caddy:ro
     depends_on:
       - synapse
     command:
       - /bin/sh
       - -c
       - exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
-#    networks:
-#      - matrix-network
 
 volumes:
   synapse_data:
   caddy_data:
   caddy_config:
   pgdata:
-
-#networks:
-#  postgres-db-network:
-#    driver: bridge
-#  matrix-network:
-#    driver: bridge
